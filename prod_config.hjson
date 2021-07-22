@@ -70,28 +70,28 @@
       name: Smashing It (6-10h)
       mention: <@&867317067073060875>
     }
-    "A* Student (10-20h)":
+    "A* Student (10-15h)":
     {
       hours: 10-15
       id: 867317119796117515
       name: A* Student (10-15)
       mention: <@&867317119796117515>
     }
-    "Study Machine (20-40h)":
+    "Study Machine (15-21h)":
     {
       hours: 15-21
       id: 867317177992347668
       name: Study Machine (15-21)
       mention: <@&867317177992347668>
     }
-    "Study Master (40-60h)":
+    "Study Master (21-30h)":
     {
       hours: 21-30
       id: 867317358883897348
       name: Study Master (21-30)
       mention: <@&867317358883897348>
     }
-    "Grandmaster (40-60h)":
+    "Grandmaster (30-150)":
     {
       hours: 30-150
       id: 867317403452047360
