@@ -80,7 +80,7 @@ class Study(commands.Cog):
     async def update_roles(self, user: discord.Member):
         user_id = user.id
         rank_categories = utilities.get_rank_categories()
-        hours_cur_period = await utilities.get_redis_score(self.redis_client, rank_categories["monthly"], user_id)
+        hours_cur_period = await utilities.get_redis_score(self.redis_client, rank_categories["weekly"], user_id)
 
         if not hours_cur_period:
             hours_cur_period = 0
