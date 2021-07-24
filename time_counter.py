@@ -80,12 +80,12 @@ class Study(commands.Cog):
     async def update_roles(self, user: discord.Member):
         user_id = user.id
         rank_categories = utilities.get_rank_categories()
-        hours_cur_period = await utilities.get_redis_score(self.redis_client, rank_categories["weekly"], user_id)
+        hours_cur_month = await utilities.get_redis_score(self.redis_client, rank_categories["monthly"], user_id)
 
-        if not hours_cur_period:
-            hours_cur_period = 0
+        if not hours_cur_month:
+            hours_cur_month = 0
         pre_role, cur_role, next_role, time_to_next_role = utilities.get_role_status(self.role_name_to_info,
-                                                                                     hours_cur_period)
+                                                                                     hours_cur_month)
 
         # not fetching the actual role to save an api call
         role_to_add_id = int(cur_role["mention"][3:-1]) if cur_role else None
@@ -347,12 +347,12 @@ class Study(commands.Cog):
     @commands.command(aliases=["P", "rank"])
     async def p(self, ctx, user: discord.Member = None):
         """
-        Displays your role placement for this month (use '-help p' to see more)
+        Displays your role placement for this month (use '~help p' to see more)
 
-        examples: '-p'
+        examples: '~p'
 
         To specify a user
-        examples: '-p @chooseyourfriend'
+        examples: '~p @chooseyourfriend'
         """
         if not self.ready_to_serve:
             return
@@ -384,21 +384,21 @@ class Study(commands.Cog):
     @commands.command(aliases=["LB", "top", "l", "L"])
     async def lb(self, ctx, timepoint=None, page: int = -1, user: discord.Member = None):
         """
-        Displays statistics for people with similar studytime (use '-help lb' to see more)
+        Displays statistics for people with similar studytime (use '~help lb' to see more)
         By default the ranking is monthly, you can specify a start time (in the last 24 hours).
-        Currently, the available starting points are hours. If we include half past hours, '-lb 10:14' will become '-lb 10:30'
+        Currently, the available starting points are hours. If we include half past hours, '~lb 10:14' will become '~lb 10:30'
 
         To specify a starting time, use any of the following formats mentioned in "-help me"
-        examples: '-lb 9' or '-lb 9pm'
+        examples: '~lb 9' or '~lb 9pm'
 
         To specify a page, specify the page number where each page has 10 members; use '-' as a placeholder to get monthly ranking
-        examples: '-lb 9 2' or '-lb - 3'
+        examples: '~lb 9 2' or '~lb - 3'
         
         To specify a time and a user, use '-1' as a placeholder for page
-        examples: '-lb 9 -1 @chooseyourfriend'
+        examples: '~lb 9 -1 @chooseyourfriend'
 
         To specify a user, also use '-' as a placeholder to get monthly ranking
-        examples: '-lb - -1 @chooseyourfriend'
+        examples: '~lb - -1 @chooseyourfriend'
 
         Note the weekly time resets on Monday GMT+0 5pm and the monthly time 1st day of the month 5pm
         """
@@ -447,7 +447,7 @@ class Study(commands.Cog):
         lb_embed = discord.Embed(title=f'{utilities.config["embed_titles"]["lb"]} ({utilities.get_month()})',
                                  description=text)
 
-        lb_embed.set_footer(text=f"Type -help lb to see how to go to other pages")
+        lb_embed.set_footer(text=f"Type ~help lb to see how to go to other pages")
         await ctx.send(embed=lb_embed)
         await self.update_roles(user)
 
@@ -459,7 +459,7 @@ class Study(commands.Cog):
     @commands.command(aliases=["ME", "m", "M"])
     async def me(self, ctx, timepoint=None, user: discord.Member = None):
         """
-        Displays statistics for your studytime (use '-help me' to see more)
+        Displays statistics for your studytime (use '~help me' to see more)
         By default the daily time is last 24 hours, but you can specify a starting hour (in the last 24 hours)
 
         To specify a starting time, use any of the following formats "%Ham, "%Hpm", "%hAM", "%hPM", "%H", "%h"
@@ -524,7 +524,6 @@ Current study streak: {currentStreak}
 Longest study streak: {longestStreak}
 ```
         """
-
         emb = discord.Embed(
             description=text)
         foot = name
@@ -544,7 +543,7 @@ Longest study streak: {longestStreak}
     @commands.command(aliases=["CHANGE", "c", "C"])
     async def change(self, ctx, dataset_name, val: float, user: discord.Member):
         """
-        Changes users' hours (use '-help change' to see more)
+        Changes users' hours (use '~help change' to see more)
         Only streak data and zset data types are supported ("longest_streak", "current_streak", "all_time" and "monthly_*")
         
         example: '-c current_streak 21 @target_user' changes the current_streak data to be 21 and update the longest_streak if sensible
@@ -574,7 +573,9 @@ Longest study streak: {longestStreak}
             self.redis_client.zadd(dataset_name, {user_id: val})
 
         # update roles
-        await ctx.send(f"user_id: {user_id}, dataset_name: {dataset_name}\nval: {val}")
+        text = f"user_id: {user_id}, dataset_name: {dataset_name}\nval: {val}"
+
+        await ctx.send(text)
         await self.update_roles(user=user)
 
     @commands.has_role(utilities.get_role_id("dev"))
@@ -610,7 +611,7 @@ def setup(bot):
             return True
         else:
             m = await ctx.send(
-                f"{ctx.author.mention} Please use that command in any or these channels: {' '.join([channel.mention for channel in command_channels])}.")
+                f"{ctx.author.mention} Please use that command in any or these channels: {' '.join(['<#' + channel + '>' for channel in command_channels])}.")
             await asyncio.sleep(10)
             await ctx.message.delete()
             await m.delete()
@@ -638,7 +639,8 @@ class CustomBot(commands.Bot):
 
 if __name__ == '__main__':
     prefixes = utilities.config["prefixes"]
+    text = "Your study statistics and rankings"
     client = CustomBot(command_prefix=prefixes, intents=Intents.all(),
-                       description="Your study statistics and rankings")
+                       description=text)
     client.load_extension('time_counter')
     client.run(os.getenv('bot_token'))

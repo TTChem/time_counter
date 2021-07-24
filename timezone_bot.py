@@ -40,8 +40,6 @@ async def get_or_create(session, model, **kwargs):
 description = f"""
 A bot that manages your timezone
 
-{utilities.config["promotion"].replace("[", "").replace("]", "").replace("(", " ").replace(")", "")}
-    
 Typical usage:
 1. Know the 2-letter code for your country. 
 You may get it from https://gist.github.com/Zackhardtoname/c2a01465ac25eec17038c6e871be17ef
@@ -65,7 +63,6 @@ async def set_zone(ctx, *, timezone):
     session.commit()
 
     text = "Set your time zone to **%s**" % zone
-    text += "\n\n" + utilities.config["promotion"]
 
     await ctx.send(embed=discord.Embed(description=text))
 
@@ -109,7 +106,6 @@ async def get_zone(ctx, users: commands.Greedy[discord.Member]):
                         await query_zone(user))
         for user in set(users)
     ])
-    text += "\n\n" + utilities.config["promotion"]
 
     await ctx.send(embed=discord.Embed(description=text))
 
@@ -123,8 +119,7 @@ async def get_time(ctx, users: commands.Greedy[discord.Member]):
                         await get_zone_time(await query_zone(user)))
         for user in set(users)
     ])
-    text += "\n\n" + utilities.config["promotion"]
-    
+
     await ctx.send(embed=discord.Embed(description=text))
 
 
@@ -134,8 +129,7 @@ async def get_tzlist(ctx, country=None):
         text = f'Available timezones for {pytz.country_names[country.upper()]} are:\n{", ".join(pytz.country_timezones[country.upper()])}'
     else:
         text = 'Please specify this command with a two letter country code. [List available here](https://gist.github.com/pamelafox/986163)'
-    text += "\n\n" + utilities.config["promotion"]
-    
+
     await ctx.send(embed=discord.Embed(description=text))
 
 if __name__ == '__main__':
