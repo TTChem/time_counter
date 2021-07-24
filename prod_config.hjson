@@ -7,7 +7,7 @@
   prefixes:[
     "-"
   ],
-  timezone_prefix: "?",
+  timezone_prefix: ".",
   other_roles:
   {
     "@Admin": 575213819475918850,
