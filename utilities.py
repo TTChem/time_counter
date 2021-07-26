@@ -87,7 +87,7 @@ def recreate_db(Base):
 def get_engine(echo=False):
     engine = create_engine(
         f'mysql+pymysql://{os.getenv("sql_user")}:{os.getenv("sql_password")}@{os.getenv("sql_host")}/{os.getenv("sql_database")}',
-        echo=echo)
+        echo=echo, pool_pre_ping=True)
 
     if not database_exists(engine.url):
         create_database(engine.url)
@@ -203,7 +203,7 @@ async def get_user_timeinfo(ctx, user, timepoint):
 
     if user_timezone == "Not set":
         await ctx.send(
-            f"**You can set a time zone by following `.help`**")
+            f"**You can set a time zone by following `{config['timezone_prefix']}help`**")
         user_timezone = config["business"]["timezone"]
 
     zone_obj = ZoneInfo(user_timezone)
