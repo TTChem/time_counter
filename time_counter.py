@@ -43,6 +43,7 @@ class Study(commands.Cog):
         Session = sessionmaker(bind=engine)
         self.sqlalchemy_session = Session()
         self.timezone_session = utilities.get_timezone_session()
+        self.make_heartbeat.start()
         self.birthtime = utilities.get_time()
 
     async def ready_check(self):
@@ -596,6 +597,11 @@ Longest study streak: {longestStreak}
     async def on_guild_available(self, guild):
         self.time_counter_logger.info(f'{utilities.get_time()} guild available')
 
+    # This is a hacky fix for mariadb auto-disconnection due to long inactivity
+    @tasks.loop(seconds=int(os.getenv("heartbeat_interval_sec")))
+    async def make_heartbeat(self):
+        zack_id = 410917278641815580
+        _ = self.sqlalchemy_session.query(User).filter(User.id == zack_id).first()
 
 def setup(bot):
     bot.add_cog(Study(bot))
